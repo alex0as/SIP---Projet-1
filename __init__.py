@@ -45,34 +45,43 @@ def transform_csv(old_csv_file_name, new_csv_file_name):
     new_csv_file_name
         Name of the new CSV file
     """
-    # Lire toutes les lignes du fichier
     with open(old_csv_file_name, "r", encoding="utf-8") as infile:
         lines = [line.strip() for line in infile.readlines()]
 
-    # Séparer l'entête et les données
     header = lines[0].split(",")
     data = [line.split(",") for line in lines[1:]]
 
-    # Identifier les indices des colonnes à garder
-    drop_cols = {"Reminder Date", "Gender"}
-    keep_indices = [i for i, col in enumerate(header) if col not in drop_cols]
+    # Trouver les indices des colonnes utiles
+    idx_gender = header.index("Gender")
+    idx_reg_date = header.index("User_Registration_Date")
+    idx_reg_time = header.index("User_Registration_Time")
+    idx_checkup_date = header.index("Last_Checkup_Date")
+    idx_checkup_time = header.index("Last_Checkup_Time")
 
-    # Nouveau header filtré
+    # Supprimer Reminder Date et Gender de l'entête
+    drop_cols = {"Reminder_Date", "Gender"}
+    keep_indices = [i for i, col in enumerate(header) if col not in drop_cols]
     new_header = [header[i] for i in keep_indices]
 
-    # Filtrer les données
     new_data = []
     for row in data:
+        # Vérifier si c'est une femme et si les dates sont inversées
+        gender = row[idx_gender].strip().lower()
+        if gender == "female":
+            if row[idx_reg_date] > row[idx_checkup_date]:
+                # swap dates et heures
+                row[idx_reg_date], row[idx_checkup_date] = row[idx_checkup_date], row[idx_reg_date]
+                row[idx_reg_time], row[idx_checkup_time] = row[idx_checkup_time], row[idx_reg_time]
+
+        # Filtrer les colonnes à garder
         new_row = [row[i] for i in keep_indices]
         new_data.append(new_row)
 
-    # Écrire le nouveau fichier CSV
+    # Écrire le nouveau CSV
     with open(new_csv_file_name, "w", encoding="utf-8") as outfile:
         outfile.write(",".join(new_header) + "\n")
         for row in new_data:
             outfile.write(",".join(row) + "\n")
-
-transform_csv("C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/pregnancies.csv","C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/new_pregnancies.csv")
 
 def create_database(cursor, conn):
     """Creates the Pregnancies 2023 database
