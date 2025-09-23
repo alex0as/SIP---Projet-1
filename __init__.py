@@ -48,40 +48,56 @@ def transform_csv(old_csv_file_name, new_csv_file_name):
     with open(old_csv_file_name, "r", encoding="utf-8") as infile:
         lines = [line.strip() for line in infile.readlines()]
 
+    # mettre en forme les données
     header = lines[0].split(",")
     data = [line.split(",") for line in lines[1:]]
 
-    # Trouver les indices des colonnes utiles
+    # Indices des colonnes
     idx_gender = header.index("Gender")
     idx_reg_date = header.index("User_Registration_Date")
     idx_reg_time = header.index("User_Registration_Time")
     idx_checkup_date = header.index("Last_Checkup_Date")
     idx_checkup_time = header.index("Last_Checkup_Time")
+    idx_no_of_checkups = header.index("No_of_Checkups")
+    idx_no_of_missed_checkup = header.index("No_of_Missed_Checkups")
 
-    # Supprimer Reminder Date et Gender de l'entête
-    drop_cols = {"Reminder_Date", "Gender"}
+    # Colonnes à supprimer
+    drop_cols = {"Reminder_Date", "Gender", "No_of_Checkups", "No_of_Missed_Checkups"}
     keep_indices = [i for i, col in enumerate(header) if col not in drop_cols]
-    new_header = [header[i] for i in keep_indices]
 
+    # Nouveau header
+    new_header = [header[i] for i in keep_indices]
+    new_header.append("Checkup")  # ajouter la nouvelle colonne à la fin
+
+    # Construire les lignes finales
     new_data = []
     for row in data:
-        # Vérifier si c'est une femme et si les dates sont inversées
+        # Corriger les dates pour les femmes
         gender = row[idx_gender].strip().lower()
-        if gender == "female":
-            if row[idx_reg_date] > row[idx_checkup_date]:
-                # swap dates et heures
-                row[idx_reg_date], row[idx_checkup_date] = row[idx_checkup_date], row[idx_reg_date]
-                row[idx_reg_time], row[idx_checkup_time] = row[idx_checkup_time], row[idx_reg_time]
+        if gender == "female" and row[idx_reg_date] > row[idx_checkup_date]:
+            row[idx_reg_date], row[idx_checkup_date] = row[idx_checkup_date], row[idx_reg_date]
+            row[idx_reg_time], row[idx_checkup_time] = row[idx_checkup_time], row[idx_reg_time]
+
+        # Calculer la colonne Checkup
+        try:
+            checkup_done = int(row[idx_no_of_checkups]) - int(row[idx_no_of_missed_checkup])
+        except:
+            checkup_done = ""
 
         # Filtrer les colonnes à garder
-        new_row = [row[i] for i in keep_indices]
-        new_data.append(new_row)
+        final_row = [row[i] for i in keep_indices]
+        final_row.append(str(checkup_done))  # ajouter la colonne Checkup
+
+        new_data.append(final_row)
 
     # Écrire le nouveau CSV
     with open(new_csv_file_name, "w", encoding="utf-8") as outfile:
         outfile.write(",".join(new_header) + "\n")
         for row in new_data:
             outfile.write(",".join(row) + "\n")
+
+
+transform_csv("C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/pregnancies.csv","C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/new_pregnancies.csv")
 
 def create_database(cursor, conn):
     """Creates the Pregnancies 2023 database
