@@ -97,8 +97,6 @@ def transform_csv(old_csv_file_name, new_csv_file_name):
             outfile.write(",".join(row) + "\n")
 
 
-transform_csv("C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/pregnancies.csv","C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/new_pregnancies.csv")
-
 def create_database(cursor, conn):
     """Creates the Pregnancies 2023 database
 
