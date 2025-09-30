@@ -78,8 +78,6 @@ def transform_data(old_csv_file_name, new_csv_file_name):
     # Sauvegarder le CSV
     df.to_csv(new_csv_file_name, index=False)
 
-transform_data("C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/pregnancies.csv", "C:/Users/Bonin/Desktop/Centrale Supélec/Première année/SIP/tp_pregnancies_squelette/data/new_pregnancies.csv")
-
 def create_database(cursor, conn):
     """Creates the Pregnancies 2023 database
 
@@ -321,3 +319,4 @@ def init_database():
         close_db_connexion(cursor, conn)
     except Exception as e:
         print("Error: Database cannot be initialised:", e)
+
