@@ -298,25 +298,22 @@ def populate_database(cursor, conn, csv_file_name):
         conn.rollback()
         return False
 
-
 def init_database():
     """Initialise the database by creating the database
     and populating it.
     """
     try:
         conn = get_db_connexion()
-
-        # The cursor is used to execute queries to the database.
         cursor = conn.cursor()
 
-        # Creates the database. THIS IS THE FUNCTION THAT YOU'LL NEED TO MODIFY
+        # Création des tables
         create_database(cursor, conn)
 
-        # Populates the database.
-        # TODO - add call to populate_database()
+        # Populer la base avec le CSV modifié
+        csv_file = "./data/new_pregnancies.csv"  # ou le chemin vers ton CSV transformé
+        populate_database(cursor, conn, csv_file)
 
-        # Closes the connection to the database
+        # Fermeture de la connexion
         close_db_connexion(cursor, conn)
     except Exception as e:
         print("Error: Database cannot be initialised:", e)
-
